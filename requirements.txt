@@ -12,3 +12,4 @@ pypdf
 rapidocr-onnxruntime
 fastembed
 black
+pyyaml

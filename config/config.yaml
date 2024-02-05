@@ -1,0 +1,4 @@
+models:
+  - mistral
+  - llama2:7b
+  - orca-mini:3b

@@ -2,9 +2,11 @@ import os
 import tempfile
 import streamlit as st
 from streamlit_chat import message
+import yaml
+from pathlib import Path
+from langchain_community.embeddings import FastEmbedEmbeddings
 
 from .chat import ChatPDF
-from .resources import model_selector_options, model_selector_captions
 
 
 st.set_page_config(page_title="ChatPDF")
@@ -48,23 +50,28 @@ def read_and_save_file():
 
 
 def update_model():
-    st.session_state["assistant"] = ChatPDF(model=st.session_state["model"])
+    st.session_state["assistant"] = ChatPDF(
+        model=st.session_state["model"]#, embeddings=st.session_state["embeddings"]
+    )
 
 
 def page():
+    with open(Path("config/config.yaml"), "r") as configfile:
+        config = yaml.safe_load(configfile)
     if len(st.session_state) == 0:
         st.session_state["messages"] = []
-        st.session_state["model"] = "mistral"
+        st.session_state["model"] = config["models"][0]
         st.session_state["assistant"] = ChatPDF(model=st.session_state["model"])
 
     st.header("ChatPDF")
     st.subheader("Select a model")
-    st.session_state["model"] = st.radio(
-        label="Select a model",
-        options=model_selector_options,
-        captions=model_selector_captions,
-        on_change=update_model,
+    st.session_state["model"] = st.selectbox(
+        label="Select a model", options=config["models"]
     )
+    st.session_state["embeddings"] = st.selectbox(
+        label="Select an embeddings", options=["TODO"]
+    )
+    st.button(label="Apply", on_click=update_model)
 
     st.subheader("Upload a document")
     st.file_uploader(

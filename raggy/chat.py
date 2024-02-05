@@ -1,8 +1,10 @@
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_community.llms.ollama import Ollama
-from langchain_community.llms.llamacpp import LlamaCpp
+
+# from langchain_community.llms.llamacpp import LlamaCpp
 from langchain_community.embeddings import FastEmbedEmbeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
+
+# from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.schema.output_parser import StrOutputParser
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -16,7 +18,7 @@ class ChatPDF(object):
     retriever = None
     chain = None
 
-    def __init__(self, model="mistral"):
+    def __init__(self, model="mistral", embeddings=FastEmbedEmbeddings()):
         self.model = Ollama(model=model)
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1024, chunk_overlap=100
@@ -31,10 +33,11 @@ class ChatPDF(object):
             Answer: [/INST]
             """
         )
-        self.embeddings = HuggingFaceEmbeddings(
+        self.embeddings = embeddings
+        """ self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/clip-ViT-B-32-multilingual-v1",
             model_kwargs={"device": "cuda"},
-        )
+        ) """
 
     def ingest(self, pdf_file_path: str):
         docs = PyPDFLoader(file_path=pdf_file_path, extract_images=True).load()
