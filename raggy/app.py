@@ -2,9 +2,11 @@ import os
 import tempfile
 import streamlit as st
 from streamlit_chat import message
-from rag import ChatPDF
+
+from .chat import ChatPDF
 
 st.set_page_config(page_title="ChatPDF")
+
 
 def display_messages():
     st.subheader("Chat")
@@ -59,7 +61,3 @@ def page():
 
     display_messages()
     st.text_input("Message", key="user_input", on_change=process_input)
-
-
-if __name__ == "__main__":
-    page()
