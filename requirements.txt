@@ -9,3 +9,6 @@ streamlit-chat
 langchain
 langchain-community
 pypdf
+rapidocr-onnxruntime
+fastembed
+black

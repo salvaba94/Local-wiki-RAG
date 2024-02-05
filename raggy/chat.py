@@ -16,9 +16,11 @@ class ChatPDF(object):
     retriever = None
     chain = None
 
-    def __init__(self):
-        self.model = Ollama(model="mistral")
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
+    def __init__(self, model="mistral"):
+        self.model = Ollama(model=model)
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1024, chunk_overlap=100
+        )
         self.prompt = PromptTemplate.from_template(
             """
             <s> [INST] You are an assistant for question-answering tasks. Use the following pieces of retrieved context 
@@ -30,8 +32,8 @@ class ChatPDF(object):
             """
         )
         self.embeddings = HuggingFaceEmbeddings(
-            model_name='sentence-transformers/clip-ViT-B-32-multilingual-v1',
-            model_kwargs={"device": "cuda"}
+            model_name="sentence-transformers/clip-ViT-B-32-multilingual-v1",
+            model_kwargs={"device": "cuda"},
         )
 
     def ingest(self, pdf_file_path: str):
@@ -39,8 +41,9 @@ class ChatPDF(object):
         chunks = self.text_splitter.split_documents(docs)
         chunks = filter_complex_metadata(chunks)
 
-
-        vector_store = Chroma.from_documents(documents=chunks, embedding=self.embeddings)
+        vector_store = Chroma.from_documents(
+            documents=chunks, embedding=self.embeddings
+        )
         self.retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={
@@ -50,10 +53,12 @@ class ChatPDF(object):
         )
         print(self.retriever)
 
-        self.chain = ({"context": self.retriever, "question": RunnablePassthrough()}
-                      | self.prompt
-                      | self.model
-                      | StrOutputParser())
+        self.chain = (
+            {"context": self.retriever, "question": RunnablePassthrough()}
+            | self.prompt
+            | self.model
+            | StrOutputParser()
+        )
 
     def ask(self, query: str):
         if not self.chain:
