@@ -4,10 +4,8 @@ import streamlit as st
 from streamlit_chat import message
 import yaml
 from pathlib import Path
-from langchain_community.embeddings import FastEmbedEmbeddings
-
 from .chat import ChatPDF
-
+from .utils import Embeddings
 
 st.set_page_config(page_title="ChatPDF")
 
@@ -51,7 +49,8 @@ def read_and_save_file():
 
 def update_model():
     st.session_state["assistant"] = ChatPDF(
-        model=st.session_state["model"]#, embeddings=st.session_state["embeddings"]
+        model=st.session_state["model"],
+        embeddings=Embeddings[st.session_state["embeddings"]].value,
     )
 
 
@@ -61,17 +60,26 @@ def page():
     if len(st.session_state) == 0:
         st.session_state["messages"] = []
         st.session_state["model"] = config["models"][0]
-        st.session_state["assistant"] = ChatPDF(model=st.session_state["model"])
+        st.session_state["embeddings"] = config["embeddings"][0]
+        st.session_state["assistant"] = ChatPDF(
+            model=st.session_state["model"],
+            embeddings=Embeddings[st.session_state["embeddings"]].value,
+        )
 
     st.header("ChatPDF")
-    st.subheader("Select a model")
-    st.session_state["model"] = st.selectbox(
-        label="Select a model", options=config["models"]
-    )
-    st.session_state["embeddings"] = st.selectbox(
-        label="Select an embeddings", options=["TODO"]
-    )
-    st.button(label="Apply", on_click=update_model)
+
+    # It only displays the select boxes if the options are greater than 1
+    if len(config["models"]) > 1 or len(config["embeddings"]) > 1:
+        st.subheader("Select a model")
+        if len(config["models"]) > 1:
+            st.session_state["model"] = st.selectbox(
+                label="Select a model", options=config["models"]
+            )
+        if len(config["embeddings"]) > 1:
+            st.session_state["embeddings"] = st.selectbox(
+                label="Select an embeddings", options=config["embeddings"]
+            )
+        st.button(label="Apply", on_click=update_model)
 
     st.subheader("Upload a document")
     st.file_uploader(
