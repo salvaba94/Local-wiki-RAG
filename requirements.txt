@@ -2,14 +2,12 @@
 torch
 transformers
 sentence_transformers
+unstructured[all-docs]
+pytesseract
 accelerate
 chromadb
 streamlit
 streamlit-chat
 langchain
 langchain-community
-pypdf
-rapidocr-onnxruntime
-fastembed
-black
 pyyaml
